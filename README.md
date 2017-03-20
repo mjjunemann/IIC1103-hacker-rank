@@ -6,7 +6,7 @@
 # Uso 
     
     Usage:
-    lab_script.py (--lab LABORATORIO ) [-s SECCION ] [--debug]
+    python3 lab_script.py (--lab LABORATORIO ) [-s SECCION ] [--debug]
 
     Options:
     -h --help                   Show this screen.
