@@ -5,13 +5,14 @@ Usage:
 
 Options:
   -h --help                   Show this screen.
-  -s --seccion SECCION        Seccion que desea filtrar.                 
+  -s --seccion SECCION        Seccion que desea filtrar.
   --version                   Muestra la version.
   -d --debug                  Muestra tabla de puntajes.
   -l --lab LABORATORIO        Laboratorio que desea consultar.
 
 """
 
+import csv
 from docopt import docopt
 import requests as req
 import json
@@ -25,12 +26,12 @@ def get_leadearboard(url=None):
     if not(url):
         return None
     finish = False
-    offset = 0 
+    offset = 0
     while not(finish):
         res = req.get(url(offset,100))
         res = json.loads(res.text)
         _hackers = res['models']
-        _page = res['page']    
+        _page = res['page']
         hackers.extend(_hackers)
         offset = _page * 100
         if (_page-1)*100 + len(_hackers) >= res['total']:
@@ -45,7 +46,7 @@ def readable_date(date):
 def filter_section(hackers,section):
     if not(section):
         return hackers
-    return list(filter(lambda user: str(section) in user['hacker'][:4],hackers))
+    return list(filter(lambda user: len(user['hacker']) >= 7 and str(section) == user['hacker'][6], hackers))
 
 
 def new_hacker(hacker, params):
@@ -70,7 +71,7 @@ def pretty_print(hackers,headers):
 def get_hackers(lab, section=None,debug=False):
     url = (
             "https://www.hackerrank.com/rest/contests/"
-            "iic1103-2017-1-lab{0}/"
+            "iic1103-2018-2-lab{0}/"
             "leaderboard?offset={1}&limit={2}&_=1489594857572"
             )
     url2 = lambda offset,limit: url.format(lab,offset,limit)
@@ -89,13 +90,12 @@ def get_hackers(lab, section=None,debug=False):
     if debug:
         pretty_print(hackers,headers=['hacker','score','fecha'])
     else:
-        _hackers = list(map(lambda hacker: (hacker['hacker'],hacker['score'],hacker['fecha']),hackers))
-        for hacker in _hackers: 
-            print(*hacker, sep="\t")
-        #print(
-        #   *list(map(lambda hacker: (hacker['hacker'],hacker['score'],hacker['fecha']),hackers)),
-        #    sep="\n")
-        #print(*map_hackers(hackers,params=['hacker']),sep="\n")
+        with open('Laboratorio {} - {}.csv'.format(lab, section), 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(["Alumno", "Puntaje"])
+            _hackers = list(map(lambda hacker: (hacker['hacker'],hacker['score']), hackers))
+            for hacker in _hackers:
+                writer.writerow([hacker[0], str(hacker[1])])
 
 def main(arguments):
     lab = arguments["--lab"]
