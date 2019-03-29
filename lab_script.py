@@ -71,7 +71,7 @@ def pretty_print(hackers,headers):
 def get_hackers(lab, section=None,debug=False):
     url = (
             "https://www.hackerrank.com/rest/contests/"
-            "iic1103-2018-2-lab{0}/"
+            "iic1103-2019-1-lab{0}/"
             "leaderboard?offset={1}&limit={2}&_=1489594857572"
             )
     url2 = lambda offset,limit: url.format(lab,offset,limit)
